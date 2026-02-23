@@ -1,0 +1,9 @@
+{
+  "name": "NVIDIA GeForce RTX 2060",
+  "computeCapability": "7.5",
+  "totalMemory_GB": 6.442123264,
+  "availableMemory_GB": 5.346471872,
+  "driverVersion": 13,
+  "toolkitVersion": 12.2,
+  "generatedAt": "2026-02-21T17:59:39"
+}

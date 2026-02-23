@@ -1,0 +1,542 @@
+/* LEO Constellation Digital Twin Dashboard */
+:root {
+    --bg-primary: #0d1117;
+    --bg-secondary: #161b22;
+    --bg-card: #1c2128;
+    --border: #30363d;
+    --text-primary: #e6edf3;
+    --text-secondary: #8b949e;
+    --accent: #58a6ff;
+    --accent-dim: #1f6feb;
+    --success: #3fb950;
+    --warning: #d29922;
+    --danger: #f85149;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+header {
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+header h1 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+nav {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.nav-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    padding: 0.4rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+}
+
+.nav-btn:hover {
+    border-color: var(--accent);
+    color: var(--text-primary);
+}
+
+.nav-btn.active {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: var(--text-primary);
+}
+
+main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem;
+}
+
+.page {
+    display: none;
+}
+
+.page.active {
+    display: block;
+}
+
+.card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.card h3 {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin-bottom: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.card-grid.two-col {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.stat-card {
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--accent);
+    display: block;
+}
+
+.artifact-img {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+    background: var(--bg-secondary);
+    min-height: 100px;
+}
+
+.artifact-notice {
+    padding: 1.5rem;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-style: italic;
+    background: var(--bg-secondary);
+    border-radius: 4px;
+    border: 1px dashed var(--border);
+}
+
+.controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding: 0.8rem 1rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+.controls label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.controls select {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    min-width: 200px;
+}
+
+.controls button {
+    background: var(--accent-dim);
+    border: 1px solid var(--accent);
+    color: var(--text-primary);
+    padding: 0.4rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+.controls button:hover {
+    background: var(--accent);
+}
+
+#gpu-info {
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.8;
+}
+
+#gpu-info .info-row {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    padding: 0.3rem 0;
+}
+
+#gpu-info .info-label {
+    color: var(--text-secondary);
+}
+
+#gpu-info .info-value {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+footer {
+    text-align: center;
+    padding: 1.5rem;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--border);
+    margin-top: 2rem;
+}
+
+/* Leaflet map styling */
+#map-groundtrack,
+#map-multitrack {
+    border-radius: 4px;
+    border: 1px solid var(--border);
+}
+
+/* 3D Orbit layout */
+.orbit3d-layout {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.orbit3d-viewport {
+    flex: 1;
+    min-width: 0;
+}
+
+.orbit3d-sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* Legacy alias for backward compatibility */
+.orbit3d-telemetry {
+    width: 280px;
+    flex-shrink: 0;
+}
+
+.orbit3d-card {
+    padding: 0 !important;
+    overflow: hidden;
+}
+
+#orbit3d-container {
+    position: relative;
+    border-radius: 8px;
+}
+
+#orbit3d-container canvas {
+    border-radius: 8px;
+}
+
+/* Telemetry panel */
+.telemetry-card {
+    height: 100%;
+}
+
+.telemetry-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+
+.telemetry-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.35rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.telemetry-item:last-child {
+    border-bottom: none;
+}
+
+.telemetry-divider {
+    border-bottom: 2px solid var(--accent-dim) !important;
+    padding: 0 !important;
+    height: 0;
+}
+
+.telemetry-label {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.telemetry-value {
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 0.88rem;
+    color: var(--accent);
+    font-weight: 600;
+    text-align: right;
+}
+
+/* Scrubber */
+.scrubber-card {
+    padding: 0.6rem 1.2rem !important;
+}
+
+.scrubber-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.scrubber-row label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.scrubber-slider {
+    flex: 1;
+    accent-color: var(--accent);
+    cursor: pointer;
+    height: 6px;
+}
+
+.scrubber-label {
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    min-width: 80px;
+    text-align: right;
+}
+
+/* Legend bar */
+.legend-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    padding: 0.2rem 0;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.legend-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* Animation controls */
+.btn-animate {
+    background: var(--success) !important;
+    border-color: var(--success) !important;
+}
+
+.btn-animate:hover {
+    background: #2ea043 !important;
+}
+
+.btn-pause {
+    background: var(--warning) !important;
+    border-color: var(--warning) !important;
+}
+
+.btn-pause:hover {
+    background: #b08800 !important;
+}
+
+.control-separator {
+    width: 1px;
+    height: 24px;
+    background: var(--border);
+    margin: 0 0.25rem;
+}
+
+.speed-slider {
+    width: 80px;
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+
+/* Toggle panel (3D orbit visibility controls) */
+.toggle-card {
+    flex-shrink: 0;
+}
+
+.toggle-card h3 {
+    margin-bottom: 0.5rem;
+}
+
+.toggle-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.toggle-item {
+    padding: 0.3rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.toggle-item:last-child {
+    border-bottom: none;
+}
+
+.toggle-master {
+    border-top: 2px solid var(--accent-dim);
+    padding-top: 0.5rem;
+    margin-top: 0.25rem;
+}
+
+.toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.toggle-label input[type="checkbox"] {
+    accent-color: var(--accent);
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+}
+
+.toggle-text {
+    white-space: nowrap;
+}
+
+/* Satellite info card */
+.sat-info-card {
+    text-align: center;
+    padding: 0.8rem 1rem !important;
+}
+
+.sat-info-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--accent);
+}
+
+.sat-info-id {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    font-family: 'Consolas', 'Courier New', monospace;
+}
+
+/* 2D Tracks layout with telemetry sidebar */
+.tracks2d-layout {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.tracks2d-map-area {
+    flex: 1;
+    min-width: 0;
+}
+
+.tracks2d-telemetry {
+    width: 280px;
+    flex-shrink: 0;
+}
+
+/* 2D Tracks — Range / Range-Rate chart area */
+.tracks2d-charts {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.tracks2d-charts .card {
+    margin-bottom: 0;
+    position: relative;
+    min-height: 180px;
+}
+
+.tracks2d-charts canvas {
+    max-height: 180px;
+}
+
+/* Satellite markers on Leaflet map */
+.sat-marker {
+    background: transparent !important;
+    border: none !important;
+}
+
+/* Nav wrap for 6 buttons */
+nav {
+    flex-wrap: wrap;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .card-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .card-grid.two-col {
+        grid-template-columns: 1fr;
+    }
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .orbit3d-layout {
+        flex-direction: column;
+    }
+    .orbit3d-sidebar {
+        width: 100%;
+    }
+    .orbit3d-telemetry {
+        width: 100%;
+    }
+    .tracks2d-layout {
+        flex-direction: column;
+    }
+    .tracks2d-telemetry {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .card-grid {
+        grid-template-columns: 1fr;
+    }
+}

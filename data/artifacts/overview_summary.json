@@ -1,0 +1,30 @@
+{
+  "nSatellites": 5,
+  "nTimesteps": 865,
+  "altitudeStats": {
+    "min_km": 545.11457775283509,
+    "max_km": 545.32213368348312,
+    "mean_km": 545.1926083291961,
+    "std_km": 0.08301795868513033
+  },
+  "inclinationStats": {
+    "min_deg": 53.0536,
+    "max_deg": 53.054,
+    "mean_deg": 53.0538
+  },
+  "generatedAt": "2026-02-21T17:59:09",
+  "satelliteIds": [
+    44713,
+    44714,
+    44715,
+    44716,
+    44717
+  ],
+  "satelliteNames": [
+    "STARLINK-1007",
+    "STARLINK-1008",
+    "STARLINK-1009",
+    "STARLINK-1010",
+    "STARLINK-1011"
+  ]
+}

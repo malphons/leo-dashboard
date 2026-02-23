@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEO Constellation Digital Twin</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+    <header>
+        <h1>LEO Constellation Digital Twin</h1>
+        <nav>
+            <button class="nav-btn active" data-page="overview">Overview</button>
+            <button class="nav-btn" data-page="detail">Satellite Detail</button>
+            <button class="nav-btn" data-page="orbit3d">3D Orbit</button>
+            <button class="nav-btn" data-page="tracks2d">2D Tracks</button>
+            <button class="nav-btn" data-page="comparison">Twin Comparison</button>
+            <button class="nav-btn" data-page="performance">GPU Performance</button>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Overview Page -->
+        <section id="page-overview" class="page active">
+            <div class="card-grid">
+                <div class="card stat-card" id="stat-nsats">
+                    <h3>Satellites</h3>
+                    <span class="stat-value">—</span>
+                </div>
+                <div class="card stat-card" id="stat-alt-mean">
+                    <h3>Mean Altitude</h3>
+                    <span class="stat-value">—</span>
+                </div>
+                <div class="card stat-card" id="stat-alt-range">
+                    <h3>Altitude Range</h3>
+                    <span class="stat-value">—</span>
+                </div>
+                <div class="card stat-card" id="stat-timesteps">
+                    <h3>Timesteps</h3>
+                    <span class="stat-value">—</span>
+                </div>
+            </div>
+            <div class="card">
+                <h3>Altitude Evolution (All Satellites)</h3>
+                <canvas id="chart-alt-evolution" height="200"></canvas>
+            </div>
+            <div class="card-grid two-col">
+                <div class="card">
+                    <h3>Orbital Speed</h3>
+                    <canvas id="chart-speed-evolution" height="200"></canvas>
+                </div>
+                <div class="card">
+                    <h3>Orbital Elements</h3>
+                    <canvas id="chart-orbital-elements" height="200"></canvas>
+                </div>
+            </div>
+            <div class="card-grid two-col">
+                <div class="card">
+                    <h3>Altitude Distribution</h3>
+                    <img id="img-altitude" src="" alt="Altitude histogram" class="artifact-img">
+                </div>
+                <div class="card">
+                    <h3>Inclination Distribution</h3>
+                    <img id="img-inclination" src="" alt="Inclination plot" class="artifact-img">
+                </div>
+            </div>
+        </section>
+
+        <!-- Satellite Detail Page -->
+        <section id="page-detail" class="page">
+            <div class="controls">
+                <label for="sat-select">Satellite:</label>
+                <select id="sat-select"></select>
+                <button id="btn-load-detail">Load</button>
+            </div>
+            <div class="card-grid two-col">
+                <div class="card">
+                    <h3>Ground Track</h3>
+                    <div id="map-groundtrack" style="height: 400px;"></div>
+                </div>
+                <div class="card">
+                    <h3>Ground Track (Static)</h3>
+                    <img id="img-groundtrack" src="" alt="Ground track" class="artifact-img">
+                </div>
+            </div>
+            <div class="card">
+                <h3>Altitude Profile</h3>
+                <canvas id="chart-altitude" height="200"></canvas>
+            </div>
+        </section>
+
+        <!-- 3D Orbit Visualization -->
+        <section id="page-orbit3d" class="page">
+            <div class="controls">
+                <label for="orbit3d-sat-select">Satellite:</label>
+                <select id="orbit3d-sat-select"></select>
+                <button id="btn-load-orbit3d" class="btn-primary">Load</button>
+                <span class="control-separator"></span>
+                <button id="btn-animate-orbit3d" class="btn-animate">Animate</button>
+                <button id="btn-pause-orbit3d" class="btn-pause">Pause</button>
+                <span class="control-separator"></span>
+                <label for="orbit3d-speed">Speed:</label>
+                <input type="range" id="orbit3d-speed" min="1" max="10" value="3" class="speed-slider">
+            </div>
+            <div class="orbit3d-layout">
+                <div class="card orbit3d-card orbit3d-viewport">
+                    <div id="orbit3d-container" style="width: 100%; height: 600px;"></div>
+                </div>
+                <div class="orbit3d-sidebar">
+                    <div class="card telemetry-card">
+                        <h3>Telemetry</h3>
+                        <div class="telemetry-grid">
+                            <div class="telemetry-item">
+                                <span class="telemetry-label">Epoch Time</span>
+                                <span class="telemetry-value" id="telem-time">--:--:--</span>
+                            </div>
+                            <div class="telemetry-item">
+                                <span class="telemetry-label">Elapsed</span>
+                                <span class="telemetry-value" id="telem-elapsed">0.00 h</span>
+                            </div>
+                            <div class="telemetry-item telemetry-divider"></div>
+                            <div class="telemetry-item">
+                                <span class="telemetry-label">Latitude</span>
+                                <span class="telemetry-value" id="telem-lat">---.--°</span>
+                            </div>
+                            <div class="telemetry-item">
+                                <span class="telemetry-label">Longitude</span>
+                                <span class="telemetry-value" id="telem-lon">---.--°</span>
+                            </div>
+                            <div class="telemetry-item">
+                                <span class="telemetry-label">Altitude</span>
+                                <span class="telemetry-value" id="telem-alt">--- km</span>
+                            </div>
+                            <div class="telemetry-item telemetry-divider"></div>
+                            <div class="telemetry-item">
+                                <span class="telemetry-label">Range (from station)</span>
+                                <span class="telemetry-value" id="telem-range">--- km</span>
+                            </div>
+                            <div class="telemetry-item">
+                                <span class="telemetry-label">Speed</span>
+                                <span class="telemetry-value" id="telem-speed">--- km/s</span>
+                            </div>
+                            <div class="telemetry-item">
+                                <span class="telemetry-label">Inclination</span>
+                                <span class="telemetry-value" id="telem-incl">---°</span>
+                            </div>
+                            <div class="telemetry-item telemetry-divider"></div>
+                            <div class="telemetry-item">
+                                <span class="telemetry-label">Orbital Period</span>
+                                <span class="telemetry-value" id="telem-period">--- min</span>
+                            </div>
+                            <div class="telemetry-item">
+                                <span class="telemetry-label">EKF-Truth Error</span>
+                                <span class="telemetry-value" id="telem-ekf-err">--- m</span>
+                            </div>
+                            <div class="telemetry-item">
+                                <span class="telemetry-label">SGP4-Truth Error</span>
+                                <span class="telemetry-value" id="telem-sgp4-err">--- m</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card toggle-card">
+                        <h3>Visibility</h3>
+                        <div id="orbit3d-track-toggles" class="toggle-grid">
+                            <!-- Populated dynamically after orbit data loads -->
+                        </div>
+                        <div class="toggle-item toggle-master">
+                            <label class="toggle-label">
+                                <input type="checkbox" id="orbit3d-ground-master" checked>
+                                <span class="toggle-text">Ground Tracks</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card scrubber-card">
+                <div class="scrubber-row">
+                    <label for="orbit3d-scrubber">Position:</label>
+                    <input type="range" id="orbit3d-scrubber" min="0" max="143" value="0" class="scrubber-slider">
+                    <span id="orbit3d-scrubber-label" class="scrubber-label">0 / 143</span>
+                </div>
+            </div>
+            <div class="card">
+                <div class="legend-bar">
+                    <span class="legend-item"><span class="legend-dot" style="background:#4488FF"></span> EKF Estimated</span>
+                    <span class="legend-item"><span class="legend-dot" style="background:#FF4444"></span> Truth (GPU RK4)</span>
+                    <span class="legend-item"><span class="legend-dot" style="background:#44BB44"></span> SGP4 Validation</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2D Multi-Track Ground Tracks -->
+        <section id="page-tracks2d" class="page">
+            <div class="controls">
+                <label for="tracks2d-sat-select">Satellite:</label>
+                <select id="tracks2d-sat-select"></select>
+                <button id="btn-load-tracks2d" class="btn-primary">Load</button>
+                <span class="control-separator"></span>
+                <button id="btn-animate-tracks2d" class="btn-animate">Animate</button>
+                <button id="btn-pause-tracks2d" class="btn-pause">Pause</button>
+                <span class="control-separator"></span>
+                <label for="tracks2d-speed">Speed:</label>
+                <input type="range" id="tracks2d-speed" min="1" max="10" value="3" class="speed-slider">
+            </div>
+            <div class="tracks2d-layout">
+                <div class="tracks2d-map-area">
+                    <div class="card">
+                        <h3>Multi-Track Ground Track</h3>
+                        <div id="map-multitrack" style="height: 500px;"></div>
+                    </div>
+                    <div class="card scrubber-card">
+                        <div class="scrubber-row">
+                            <label for="tracks2d-scrubber">Position:</label>
+                            <input type="range" id="tracks2d-scrubber" min="0" max="143" value="0" class="scrubber-slider">
+                            <span id="tracks2d-scrubber-label" class="scrubber-label">0 / 143</span>
+                        </div>
+                    </div>
+                    <div class="card-grid two-col tracks2d-charts">
+                        <div class="card">
+                            <h3>Range (Altitude)</h3>
+                            <canvas id="chart-range" height="160"></canvas>
+                        </div>
+                        <div class="card">
+                            <h3>Range-Rate</h3>
+                            <canvas id="chart-range-rate" height="160"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="tracks2d-telemetry">
+                    <div class="card sat-info-card">
+                        <div class="sat-info-name" id="t2d-sat-name">No satellite loaded</div>
+                        <div class="sat-info-id" id="t2d-sat-id"></div>
+                    </div>
+                    <div class="card toggle-card">
+                        <h3>Track Visibility</h3>
+                        <div class="toggle-grid">
+                            <div class="toggle-item">
+                                <label class="toggle-label">
+                                    <input type="checkbox" id="t2d-toggle-truth" checked>
+                                    <span class="legend-dot" style="background:#FF4444;display:inline-block;width:10px;height:10px;margin-right:6px"></span>
+                                    <span class="toggle-text">Truth (GPU RK4)</span>
+                                </label>
+                            </div>
+                            <div class="toggle-item">
+                                <label class="toggle-label">
+                                    <input type="checkbox" id="t2d-toggle-ekf" checked>
+                                    <span class="legend-dot" style="background:#4488FF;display:inline-block;width:10px;height:10px;margin-right:6px"></span>
+                                    <span class="toggle-text">EKF Estimated</span>
+                                </label>
+                            </div>
+                            <div class="toggle-item">
+                                <label class="toggle-label">
+                                    <input type="checkbox" id="t2d-toggle-sgp4" checked>
+                                    <span class="legend-dot" style="background:#44BB44;display:inline-block;width:10px;height:10px;margin-right:6px"></span>
+                                    <span class="toggle-text">SGP4 (Toolbox)</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card telemetry-card">
+                        <h3>Telemetry</h3>
+                        <div class="telemetry-grid">
+                            <div class="telemetry-item">
+                                <span class="telemetry-label">Epoch Time</span>
+                                <span class="telemetry-value" id="t2d-telem-time">--:--:--</span>
+                            </div>
+                            <div class="telemetry-item">
+                                <span class="telemetry-label">Elapsed</span>
+                                <span class="telemetry-value" id="t2d-telem-elapsed">0.00 h</span>
+                            </div>
+                            <div class="telemetry-item telemetry-divider"></div>
+                            <div class="telemetry-item">
+                                <span class="telemetry-label">Latitude</span>
+                                <span class="telemetry-value" id="t2d-telem-lat">---.--°</span>
+                            </div>
+                            <div class="telemetry-item">
+                                <span class="telemetry-label">Longitude</span>
+                                <span class="telemetry-value" id="t2d-telem-lon">---.--°</span>
+                            </div>
+                            <div class="telemetry-item">
+                                <span class="telemetry-label">Altitude</span>
+                                <span class="telemetry-value" id="t2d-telem-alt">--- km</span>
+                            </div>
+                            <div class="telemetry-item telemetry-divider"></div>
+                            <div class="telemetry-item">
+                                <span class="telemetry-label">Range (from station)</span>
+                                <span class="telemetry-value" id="t2d-telem-range">--- km</span>
+                            </div>
+                            <div class="telemetry-item">
+                                <span class="telemetry-label">Speed</span>
+                                <span class="telemetry-value" id="t2d-telem-speed">--- km/s</span>
+                            </div>
+                            <div class="telemetry-item">
+                                <span class="telemetry-label">Inclination</span>
+                                <span class="telemetry-value" id="t2d-telem-incl">---°</span>
+                            </div>
+                            <div class="telemetry-item telemetry-divider"></div>
+                            <div class="telemetry-item">
+                                <span class="telemetry-label">Orbital Period</span>
+                                <span class="telemetry-value" id="t2d-telem-period">--- min</span>
+                            </div>
+                            <div class="telemetry-item">
+                                <span class="telemetry-label">EKF-Truth Error</span>
+                                <span class="telemetry-value" id="t2d-telem-ekf-err">--- m</span>
+                            </div>
+                            <div class="telemetry-item">
+                                <span class="telemetry-label">SGP4-Truth Error</span>
+                                <span class="telemetry-value" id="t2d-telem-sgp4-err">--- m</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="legend-bar">
+                    <span class="legend-item"><span class="legend-dot" style="background:#4488FF"></span> EKF Estimated</span>
+                    <span class="legend-item"><span class="legend-dot" style="background:#FF4444"></span> Truth (GPU RK4)</span>
+                    <span class="legend-item"><span class="legend-dot" style="background:#44BB44"></span> SGP4 (Aerospace Toolbox)</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Twin Comparison Page -->
+        <section id="page-comparison" class="page">
+            <div class="card-grid">
+                <div class="card stat-card" id="stat-rms-pos">
+                    <h3>One-Step RMS Pos</h3>
+                    <span class="stat-value">—</span>
+                </div>
+                <div class="card stat-card" id="stat-rms-vel">
+                    <h3>One-Step RMS Vel</h3>
+                    <span class="stat-value">—</span>
+                </div>
+                <div class="card stat-card" id="stat-horizon">
+                    <h3>Steps &lt; 1km</h3>
+                    <span class="stat-value">—</span>
+                </div>
+            </div>
+            <div class="card-grid two-col">
+                <div class="card">
+                    <h3>Rollout Error</h3>
+                    <img id="img-error-ts" src="" alt="Error timeseries" class="artifact-img">
+                </div>
+                <div class="card">
+                    <h3>Regime Error Map</h3>
+                    <img id="img-regime" src="" alt="Regime map" class="artifact-img">
+                </div>
+            </div>
+            <div class="card">
+                <h3>Physics vs Surrogate Drift</h3>
+                <img id="img-drift" src="" alt="Drift heatmap" class="artifact-img">
+            </div>
+        </section>
+
+        <!-- GPU Performance Page -->
+        <section id="page-performance" class="page">
+            <div class="card" id="gpu-info-card">
+                <h3>GPU Device</h3>
+                <div id="gpu-info"></div>
+            </div>
+            <div class="card-grid two-col">
+                <div class="card">
+                    <h3>Throughput</h3>
+                    <img id="img-throughput" src="" alt="Throughput" class="artifact-img">
+                </div>
+                <div class="card">
+                    <h3>Memory Usage</h3>
+                    <img id="img-memory" src="" alt="Memory" class="artifact-img">
+                </div>
+            </div>
+            <div class="card">
+                <h3>Throughput Data</h3>
+                <canvas id="chart-throughput" height="200"></canvas>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Maintained by Marshall Alphonso. Generated <span id="generated-at">—</span>.</p>
+    </footer>
+
+    <script src="orbit3d.js"></script>
+    <script src="tracks2d.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

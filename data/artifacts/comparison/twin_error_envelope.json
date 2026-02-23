@@ -1,0 +1,14 @@
+{
+  "oneStep": {
+    "rmsPos": 63462.1782007809,
+    "rmsVel": 102.87555381733388,
+    "maxPos": 239143.39630731114
+  },
+  "rollout": {
+    "nSteps": 100,
+    "maxStepsBelow1km": 0,
+    "finalError_m": 1.2926563839221861E+7,
+    "meanError_m": 8.8056685858804211E+6
+  },
+  "generatedAt": "2026-02-21T17:59:32"
+}
