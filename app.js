@@ -764,34 +764,26 @@
 
     // ========== Populate satellite selectors ==========
     function populateSatSelector() {
-        // Try orbit summary first (has orbit-specific satellite list)
-        var orbitSummaryLoaded = false;
-
+        // Use orbit summary as single source for ALL satellite selectors.
+        // This ensures consistent satellite counts across 3D Orbit,
+        // 2D Tracks, and Detail tabs (all show satellites with data).
         fetchJSON(ARTIFACT_BASE + '/orbits/orbit_summary.json')
             .then(function (orbitData) {
-                orbitSummaryLoaded = true;
                 populateSelector('orbit3d-sat-select', orbitData);
                 populateSelector('tracks2d-sat-select', orbitData);
+                populateSelector('sat-select', orbitData);
             })
             .catch(function () {
-                // Fallback: use overview summary for orbit pages too
+                // Fallback: use overview summary if orbit summary unavailable
                 fetchJSON(ARTIFACT_BASE + '/overview/overview_summary.json')
                     .then(function (data) {
                         populateSelector('orbit3d-sat-select', data);
                         populateSelector('tracks2d-sat-select', data);
+                        populateSelector('sat-select', data);
                     })
                     .catch(function () {
-                        console.warn('Could not load satellite list for orbit pages');
+                        console.warn('Could not load satellite list');
                     });
-            });
-
-        // Detail page selector (always from overview)
-        fetchJSON(ARTIFACT_BASE + '/overview/overview_summary.json')
-            .then(function (data) {
-                populateSelector('sat-select', data);
-            })
-            .catch(function () {
-                console.warn('Could not load satellite list');
             });
     }
 

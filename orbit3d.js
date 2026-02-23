@@ -14,6 +14,11 @@ var Orbit3D = (function () {
     var ARTIFACT_BASE = 'data/artifacts';
     var OMEGA_EARTH = 7.2921159e-5;  // Earth sidereal rotation rate [rad/s]
 
+    // GMST at simulation epoch (22-Feb-2026 21:29:19 UTC) = 115.126 deg = 2.00933 rad.
+    // earthMesh is pre-rotated -90° so its Greenwich aligns with ECEF +X.
+    // earthGroup rotation then just needs GMST(epoch) + omega * t.
+    var GMST0_RAD = 2.00933;  // Greenwich Mean Sidereal Time at epoch [rad]
+
     var scene, camera, renderer, controls;
     var earthGroup;  // Group that rotates with Earth (mesh + wireframe + equator)
     var earthMesh;
@@ -81,6 +86,9 @@ var Orbit3D = (function () {
             opacity: 0.92
         });
         earthMesh = new THREE.Mesh(earthGeo, earthMat);
+        // Rotate mesh -90° so that the Blue Marble texture's Greenwich (at +Z
+        // in UV space) aligns with the ECEF +X direction used by ground tracks.
+        earthMesh.rotation.y = -Math.PI / 2;
         earthGroup.add(earthMesh);
 
         // Load Earth texture (Blue Marble from NASA — public domain)
@@ -485,13 +493,10 @@ var Orbit3D = (function () {
 
         // Rotate Earth to match sidereal rotation at current simulation time.
         // ECI Z-axis (north pole) maps to Three.js Y-axis, so Earth rotates
-        // around Y. The rotation angle matches eci2latlon.m: theta = omega * t.
-        // The Blue Marble texture has its seam (antimeridian) at the -X/+Z
-        // boundary of the UV sphere, so we add a PI offset to align the
-        // prime meridian (lon=0) with ECI X-axis at t=0.
+        // around Y. Total angle = GMST(epoch) + omega * t, which places
+        // Greenwich at the correct ECI longitude for each frame.
         if (earthGroup) {
-            var theta = OMEGA_EARTH * timeSec;
-            earthGroup.rotation.y = theta + Math.PI;
+            earthGroup.rotation.y = GMST0_RAD + OMEGA_EARTH * timeSec;
         }
 
         // Update telemetry panel

@@ -1,6 +1,11 @@
 {
-  "nSatellites": 10,
+  "nSatellites": 15,
   "satelliteIds": [
+    "44713",
+    "44714",
+    "44715",
+    "44716",
+    "44717",
     "44744",
     "44930",
     "44968",
@@ -13,6 +18,11 @@
     "45581"
   ],
   "satelliteNames": [
+    "STARLINK-1007",
+    "STARLINK-1008",
+    "STARLINK-1009",
+    "STARLINK-1010",
+    "STARLINK-1011",
     "STARLINK-1039",
     "STARLINK-1123",
     "STARLINK-1090",
