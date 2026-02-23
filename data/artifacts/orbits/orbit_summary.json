@@ -1,22 +1,32 @@
 {
-  "nSatellites": 5,
+  "nSatellites": 10,
   "satelliteIds": [
-    "44713",
-    "44714",
-    "44715",
-    "44716",
-    "44717"
+    "44744",
+    "44930",
+    "44968",
+    "45098",
+    "45212",
+    "45366",
+    "45368",
+    "45370",
+    "45374",
+    "45581"
   ],
   "satelliteNames": [
-    "STARLINK-1007",
-    "STARLINK-1008",
-    "STARLINK-1009",
-    "STARLINK-1010",
-    "STARLINK-1011"
+    "STARLINK-1039",
+    "STARLINK-1123",
+    "STARLINK-1090",
+    "STARLINK-1184",
+    "STARLINK-1231",
+    "STARLINK-1262",
+    "STARLINK-1276",
+    "STARLINK-1281",
+    "STARLINK-1300",
+    "STARLINK-1335"
   ],
   "hasEKF": true,
   "hasSGP4": true,
   "truthPoints": 145,
   "duration_s": 86400,
-  "generatedAt": "2026-02-21T17:59:32"
+  "generatedAt": "2026-02-23T09:55:57"
 }
